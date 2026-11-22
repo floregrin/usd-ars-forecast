@@ -9,7 +9,7 @@ from xgboost import XGBRegressor
 
 TZ = "America/Argentina/Buenos_Aires"
 DAY = pd.Timedelta(days=1)
-WINDOW = pd.Timedelta(hours=6)
+WINDOW = pd.Timedelta(hours=48)
 HORIZONS = {name: pd.DateOffset(**offset) for name, offset in [
     ("1D", {"days": 1}), ("7D", {"days": 7}), ("14D", {"days": 14}),
     ("1M", {"months": 1}), ("3M", {"months": 3}), ("6M", {"months": 6}),

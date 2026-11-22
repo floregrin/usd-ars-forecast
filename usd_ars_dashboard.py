@@ -44,7 +44,7 @@ SNAPSHOT = Path(__file__).with_name("snapshot")
 METRIC_HELP = {
     "selection_n": "Matched forecasts in the earlier period used to select model settings and blend weight.",
     "test_issued": "Historical forecasts reconstructed for the later test period.",
-    "test_scored": "Test forecasts with a quote at or within six hours after the target. Each contributes one point per plotted line.",
+    "test_scored": "Test forecasts with a quote at or within 48 hours after the target. Each contributes one point per plotted line.",
     "xgb_weight": "Fraction of the XGBoost price move retained by the tuned blend. The remainder goes to no change.",
     "baseline_MAE": "Mean absolute error when carrying the starting price forward.",
     "XGB_MAE": "Mean absolute error of the full XGBoost forecast.",

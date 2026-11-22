@@ -4,7 +4,7 @@ Forecasts are Argentine pesos per US dollar for 1D, 7D, 14D, 1M, 3M, 6M, and 1Y.
 
 ## Explore the model
 
-Open **USD_ARS_Final.ipynb** on GitHub to see the executed notebook, selected settings, held-out price MAEs and plots. Each horizon has a separate choice from 13 base configurations and 101 blend weights. Test dates were excluded from selection. Each test uses at most four years of historical prices, subject to archive coverage. A fresh model is fit on each sampled date. The operational worker fits once per Buenos Aires day and issues every minute. Periods with sparse coverage can produce many unmatched outcomes. Long-horizon returns overlap. Compare performance on identical matched targets.
+Open **USD_ARS_Final.ipynb** on GitHub to see the executed notebook, selected settings, held-out price MAEs and plots. Each horizon has a separate choice from 13 base configurations and 101 blend weights. Test dates were excluded from selection. Each test uses at most four years of historical prices, subject to archive coverage. A fresh model is fit on each sampled date. The operational worker fits once per Buenos Aires day and issues every minute. All seven horizons use the first archived quote from target time through 48 hours later, inclusive. Forecasts without an eligible quote remain in the test export and are excluded from price MAE. On its first scoring cycle after this update, the worker rechecks previously unmatched live forecasts against the wider window. Long-horizon returns overlap. Compare performance on identical matched targets.
 
 ## Run locally
 

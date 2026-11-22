@@ -146,6 +146,10 @@ def issue(db, models, version, stamp):
 def score(db, stamp):
     cutoff = int(stamp.timestamp())
     delay = int(WINDOW.total_seconds())
+    # Reopen older unmatched forecasts once when expanding the matching window.
+    marker = f"score_window_{delay}"
+    if db.execute("INSERT OR IGNORE INTO chunks(name) VALUES (?)", (marker,)).rowcount:
+        db.execute("UPDATE forecasts SET status='pending' WHERE status='unmatched'")
     # A delayed bar can improve an earlier match or resolve an unmatched target.
     # Revisit affected targets when previously unseen observations enter the archive.
     last = db.execute("SELECT seen FROM score_cursor").fetchone()
