@@ -41,9 +41,30 @@ def finish(fig, ax):
 SNAPSHOT = Path(__file__).with_name("snapshot")
 
 
-def historical_panel(horizon):
+METRIC_HELP = {
+    "selection_n": "Matched forecasts in the earlier period used to select model settings and blend weight.",
+    "test_issued": "Historical forecasts reconstructed for the later test period.",
+    "test_scored": "Test forecasts with a quote at or within six hours after the target. Each contributes one point per plotted line.",
+    "xgb_weight": "Fraction of the XGBoost price move retained by the tuned blend. The remainder goes to no change.",
+    "baseline_MAE": "Mean absolute error when carrying the starting price forward.",
+    "XGB_MAE": "Mean absolute error of the full XGBoost forecast.",
+    "half_MAE": "Mean absolute error of the midpoint between no change and XGBoost.",
+    "tuned_MAE": "Mean absolute error of the blend selected for this horizon.",
+}
+
+
+def historical_panel():
+    horizon = st.select_slider("Historical backtest horizon", HORIZONS, key="backtest_horizon")
     summary = pd.read_csv(SNAPSHOT/"metrics.csv").set_index("horizon")
-    st.dataframe(summary.round(2))
+    columns = {name: st.column_config.NumberColumn(help=meaning, format="%.2f" if name.endswith("MAE") or name == "xgb_weight" else "%d")
+               for name, meaning in METRIC_HELP.items()}
+    st.dataframe(summary.loc[[horizon]], column_config=columns)
+    st.caption("Errors are in ARS per USD. Lower is better. The chart shows the scored test forecasts.")
+    with st.expander("Compare all seven horizons"):
+        st.dataframe(summary, column_config=columns)
+    with st.expander("What do the columns mean?"):
+        st.markdown("**horizon** — Time from forecast issue to target.\n\n" +
+                    "\n\n".join(f"**{name}** — {meaning}" for name, meaning in METRIC_HELP.items()))
     g = pd.read_csv(SNAPSHOT/"holdout.csv")
     g = g.loc[g.horizon.eq(horizon)].dropna(subset=["actual"])
     fig, ax = plt.subplots(figsize=(10, 4))
@@ -51,6 +72,7 @@ def historical_panel(horizon):
     for field, label in [("actual","Matched close"),("predicted","XGBoost"),
                          ("base","No change"),("blend","Tuned blend")]:
         ax.plot(target,g[field],marker=".",label=label)
+    ax.set_title(f"{horizon} backtest · {len(g)} scored forecasts")
     ax.set_xlabel("Historical target date")
     finish(fig, ax)
 
@@ -59,23 +81,23 @@ def show_snapshot():
     if not (SNAPSHOT/"forecast.csv").exists():
         st.info("Run the tuning notebook to generate the dashboard snapshot.")
         return
-    h = st.select_slider("Prediction horizon", HORIZONS)
-    batch = pd.read_csv(SNAPSHOT/"forecast.csv").set_index("horizon")
-    row = batch.loc[h].copy()
-    for k in ("issued_at","base_quote_at","target_at"):
-        row[k] = int(pd.Timestamp(row[k]).timestamp())
-    st.caption(f"Historical snapshot as of {local(row.issued_at):%d %b %Y %H:%M} ART · "
-               f"Target {local(row.target_at):%d %b %Y %H:%M} ART · "
-               f"XGBoost weight {row.xgb_weight:.0%}")
     forecast, monitoring = st.tabs(["Forecast", "Historical backtest"])
     with forecast:
+        h = st.select_slider("Prediction horizon", HORIZONS)
+        batch = pd.read_csv(SNAPSHOT/"forecast.csv").set_index("horizon")
+        row = batch.loc[h].copy()
+        for k in ("issued_at","base_quote_at","target_at"):
+            row[k] = int(pd.Timestamp(row[k]).timestamp())
+        st.caption(f"Historical snapshot as of {local(row.issued_at):%d %b %Y %H:%M} ART · "
+                   f"Target {local(row.target_at):%d %b %Y %H:%M} ART · "
+                   f"XGBoost weight {row.xgb_weight:.0%}")
         for col, (field, (label, _)) in zip(st.columns(3), MODELS.items()):
             col.metric(label,f"{row[field]:,.2f}")
         hist = pd.read_csv(SNAPSHOT/"history.csv")
         hist.index = pd.to_datetime(hist.time,utc=True).dt.tz_convert(TZ)
         draw(hist.close,row)
     with monitoring:
-        historical_panel(h)
+        historical_panel()
 
 
 @st.fragment(run_every="60s")
@@ -96,7 +118,7 @@ def render():
         forecast, monitor, historical = st.tabs(["Forecast", "Live backtesting", "Historical backtest"])
         with historical:
             if (SNAPSHOT/"metrics.csv").exists():
-                historical_panel(horizon)
+                historical_panel()
         with forecast:
             st.caption(f"Issued {local(issued):%d %b %Y %H:%M:%S} ART · "
                        f"Base quote {local(row.base_quote_at):%d %b %Y %H:%M} ART · "
