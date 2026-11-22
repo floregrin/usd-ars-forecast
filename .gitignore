@@ -1,0 +1,11 @@
+*.sqlite*
+*.db*
+*.key
+*.pem
+.env
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+mlruns/
+mlartifacts/
+.streamlit/secrets.toml

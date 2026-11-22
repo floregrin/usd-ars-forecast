@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "data_end": "2026-11-20T23:00:00+00:00",
+  "horizons": {
+    "1D": {
+      "params": {
+        "max_depth": 5,
+        "n_estimators": 100,
+        "learning_rate": 0.1
+      },
+      "xgb_weight": 0.0
+    },
+    "7D": {
+      "params": {
+        "max_depth": 5,
+        "n_estimators": 100,
+        "learning_rate": 0.1
+      },
+      "xgb_weight": 0.41
+    },
+    "14D": {
+      "params": {
+        "max_depth": 5,
+        "n_estimators": 100,
+        "learning_rate": 0.1
+      },
+      "xgb_weight": 0.34
+    },
+    "1M": {
+      "params": {
+        "max_depth": 5,
+        "n_estimators": 100,
+        "learning_rate": 0.1
+      },
+      "xgb_weight": 0.31
+    },
+    "3M": {
+      "params": {
+        "max_depth": 1,
+        "n_estimators": 50,
+        "learning_rate": 0.03
+      },
+      "xgb_weight": 0.28
+    },
+    "6M": {
+      "params": {
+        "max_depth": 5,
+        "n_estimators": 50,
+        "learning_rate": 0.03
+      },
+      "xgb_weight": 0.25
+    },
+    "1Y": {
+      "params": {
+        "max_depth": 1,
+        "n_estimators": 50,
+        "learning_rate": 0.03
+      },
+      "xgb_weight": 0.17
+    }
+  }
+}
